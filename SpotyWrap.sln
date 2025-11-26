@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36616.10 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpotyWrap", "SpotyWrap\SpotyWrap.csproj", "{A7F708CF-5E86-44F5-A2CF-C5F0B45E1C88}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A7F708CF-5E86-44F5-A2CF-C5F0B45E1C88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7F708CF-5E86-44F5-A2CF-C5F0B45E1C88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7F708CF-5E86-44F5-A2CF-C5F0B45E1C88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7F708CF-5E86-44F5-A2CF-C5F0B45E1C88}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {52ABD0CA-216E-402B-A5CE-0EF559FB1B05}
+	EndGlobalSection
+EndGlobal
