@@ -1,0 +1,66 @@
+﻿@page "/user"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<h3>User Profile</h3>
+
+@if (!isLoaded)
+{
+    <p>Loading...</p>
+}
+else if (string.IsNullOrEmpty(accessToken))
+{
+    <div class="text-center">
+        <button class="btn btn-success btn-lg" @onclick="Login">
+            <i class="bi bi-spotify"></i> Login with Spotify
+     </button>
+    </div>
+}
+else
+{
+    @if (userData != null)
+    {
+        <div class="card">
+      <div class="card-body">
+    <div class="row">
+          <div class="col-md-3 text-center">
+     @if (userData.Images != null && userData.Images.Any())
+ {
+            <img src="@userData.Images[0].Url" alt="Profile" class="img-fluid rounded-circle mb-3" style="max-width: 150px;" />
+ }
+    else
+  {
+   <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+        <span class="text-white fs-1">@userData.DisplayName?.Substring(0, 1).ToUpper()</span>
+         </div>
+  }
+         </div>
+                    <div class="col-md-9">
+      <h4>@userData.DisplayName</h4>
+    <p><strong>Email:</strong> @userData.Email</p>
+      <p><strong>User ID:</strong> @userData.Id</p>
+         @if (!string.IsNullOrEmpty(userData.Country))
+ {
+       <p><strong>Country:</strong> @userData.Country</p>
+     }
+        @if (!string.IsNullOrEmpty(userData.Product))
+    {
+      <p><strong>Subscription:</strong> @userData.Product</p>
+     }
+ </div>
+  </div>
+            </div>
+  </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">
+      Unable to load user data. Please try logging in again.
+   </div>
+    }
+    
+    <div class="mt-3">
+   <button class="btn btn-danger" @onclick="Logout">Logout</button>
+    </div>
+}

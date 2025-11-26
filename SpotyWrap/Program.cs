@@ -1,4 +1,5 @@
 using SpotyWrap.Components;
+using SpotyWrap.Configuration;
 
 namespace SpotyWrap
 {
@@ -11,6 +12,10 @@ namespace SpotyWrap
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            // Register Spotify configuration
+            builder.Services.Configure<SpotifySettings>(
+                builder.Configuration.GetSection("Spotify"));
 
             var app = builder.Build();
 
