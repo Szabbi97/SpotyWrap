@@ -5,4 +5,20 @@
 
 <h1>Generator</h1>
 
-<button @onclick="Generate">Generate</button>
+@if (!isLoaded)
+{
+    <p>Loading...</p>
+}
+else if (!string.IsNullOrEmpty(accessToken))
+{
+    <div class="text-center">
+        <button class="btn btn-success btn-lg" @onclick="GenerateThis">
+          <i class="bi bi-spotify"></i> Generate this month
+        </button>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-success btn-lg" @onclick="GenerateAll">
+            <i class="bi bi-spotify"></i> Generate all
+     </button>
+    </div>
+}
