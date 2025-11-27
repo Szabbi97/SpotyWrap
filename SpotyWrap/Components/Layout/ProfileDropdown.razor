@@ -1,7 +1,9 @@
 @rendermode InteractiveServer
 @using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
 
-<div class="profile-container" tabindex="-1" @onfocusout="HandleFocusOut">
+<div class="profile-container" @ref="profileContainerRef">
     <button class="btn btn-link profile-button" @onclick="ToggleProfileDropdown">
         <span class="bi bi-person-circle"></span> Profile
     </button>

@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
+using Microsoft.JSInterop;
 using SpotyWrap.Components.Classes;
 using SpotyWrap.Configuration;
 using SpotyWrap.Services;
 
 namespace SpotyWrap.Components.Layout
 {
-    public partial class ProfileDropdown : IDisposable
+    public partial class ProfileDropdown : IAsyncDisposable
     {
         [Parameter] public EventCallback OnDropdownStateChanged { get; set; }
 
@@ -18,6 +19,9 @@ namespace SpotyWrap.Components.Layout
         private bool isAuthenticated => AuthStateService.IsAuthenticated;
         private UserData? userData => AuthStateService.UserData;
         private bool isProfileDropdownOpen = false;
+        private ElementReference profileContainerRef;
+        private IJSObjectReference? _jsModule;
+        private DotNetObjectReference<ProfileDropdown>? _dotNetRef;
 
         protected override void OnInitialized()
         {
@@ -29,6 +33,17 @@ namespace SpotyWrap.Components.Layout
             if (firstRender)
             {
                 await AuthStateService.InitializeAsync();
+                _dotNetRef = DotNetObjectReference.Create(this);
+                
+                try
+                {
+                    _jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./Components/Layout/ProfileDropdown.razor.js");
+                    await _jsModule.InvokeVoidAsync("initialize", profileContainerRef, _dotNetRef);
+                }
+                catch (Exception)
+                {
+                }
+                
                 StateHasChanged();
             }
         }
@@ -44,13 +59,6 @@ namespace SpotyWrap.Components.Layout
             await OnDropdownStateChanged.InvokeAsync();
         }
 
-        private async Task HandleFocusOut(FocusEventArgs args)
-        {
-            await Task.Delay(100);
-            isProfileDropdownOpen = false;
-            StateHasChanged();
-        }
-
         public async Task Login()
         {
             var authUrl = await AuthStateService.LoginAsync(SpotifyOptions.Value.ClientId);
@@ -59,15 +67,38 @@ namespace SpotyWrap.Components.Layout
 
         public async Task Logout()
         {
-            await AuthStateService.ClearAuthenticationAsync();
             isProfileDropdownOpen = false;
+            await AuthStateService.ClearAuthenticationAsync();
             NavigationManager.NavigateTo("/", true);
-            StateHasChanged();
         }
 
-        public void Dispose()
+        [JSInvokable]
+        public void CloseDropdown()
+        {
+            if (isProfileDropdownOpen)
+            {
+                isProfileDropdownOpen = false;
+                InvokeAsync(StateHasChanged);
+            }
+        }
+
+        public async ValueTask DisposeAsync()
         {
             AuthStateService.OnChange -= OnAuthStateChanged;
+            
+            if (_jsModule != null)
+            {
+                try
+                {
+                    await _jsModule.InvokeVoidAsync("dispose");
+                    await _jsModule.DisposeAsync();
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            _dotNetRef?.Dispose();
         }
     }
 }
