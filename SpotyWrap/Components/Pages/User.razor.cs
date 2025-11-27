@@ -2,6 +2,7 @@
 using Microsoft.JSInterop;
 using SpotyWrap.Components.Classes;
 using SpotyWrap.Configuration;
+using SpotyWrap.Services;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
@@ -16,6 +17,9 @@ namespace SpotyWrap.Components.Pages
 
         [Microsoft.AspNetCore.Components.Inject]
         private IOptions<SpotifySettings> SpotifyOptions { get; set; }
+
+        [Microsoft.AspNetCore.Components.Inject]
+        private AuthStateService AuthStateService { get; set; }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -87,6 +91,7 @@ namespace SpotyWrap.Components.Pages
 
             if (string.IsNullOrEmpty(codeVerifier))
             {
+                Console.WriteLine("User - ExchangeCodeForToken: codeVerifier is null or empty");
                 return;
             }
 
@@ -120,13 +125,25 @@ namespace SpotyWrap.Components.Pages
                      $"document.cookie = 'spotify_access_token={tokenResponse.access_token}; max-age={expiresIn}; path=/; SameSite=Lax'");
 
                         accessToken = tokenResponse.access_token;
+                        Console.WriteLine($"User - Token received and set in cookie: {accessToken.Substring(0, 20)}...");
 
                         await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "code_verifier");
+
+                        // Notify NavMenu and other components about auth state change
+                        Console.WriteLine("User - Notifying AuthStateService");
+                        AuthStateService.NotifyStateChanged();
+                        
+                        await LoadUserDataAsync();
                     }
                 }
+                else
+                {
+                    Console.WriteLine($"User - Token exchange failed: {response.StatusCode}");
+                }
             }
-            catch (Exception )
+            catch (Exception ex)
             {
+                Console.WriteLine($"User - Exception during token exchange: {ex.Message}");
                 return;
             }
         }
@@ -136,6 +153,10 @@ namespace SpotyWrap.Components.Pages
             await JSRuntime.InvokeVoidAsync("clearSpotifyAccessToken");
             accessToken = null;
             userData = null;
+            
+            // Notify NavMenu and other components about auth state change
+            AuthStateService.NotifyStateChanged();
+            
             StateHasChanged();
         }
 

@@ -1,6 +1,8 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@rendermode InteractiveServer
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-    <a class="navbar-brand" href="">SpotyWrap</a>
+        <a class="navbar-brand" href="">SpotyWrap</a>
     </div>
 </div>
 
@@ -10,39 +12,29 @@
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-    <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
-   </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-   <NavLink class="nav-link" href="user">
-           <span class="bi bi-person-circle" aria-hidden="true"></span> User Profile
+                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="generator">
-          <span class="bi bi-spotify" aria-hidden="true"></span> Generator
-      </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-         <NavLink class="nav-link" href="allliked">
-        <span class="bi bi-heart-fill" aria-hidden="true"></span> All Liked
-            </NavLink>
- </div>
-
-    <div class="nav-item px-3">
-        <NavLink class="nav-link" href="counter">
-              <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="user">
+                <span class="bi bi-person-circle" aria-hidden="true"></span> User Profile
             </NavLink>
         </div>
+        @if (!string.IsNullOrEmpty(accessToken))
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="generator">
+                    <span class="bi bi-spotify" aria-hidden="true"></span> Generator
+                </NavLink>
+            </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-     <span class="bi bi-list-nested" aria-hidden="true"></span> Weather
- </NavLink>
-        </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="allliked">
+                    <span class="bi bi-heart-fill" aria-hidden="true"></span> All Liked
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
 

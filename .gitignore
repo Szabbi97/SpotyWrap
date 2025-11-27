@@ -392,3 +392,4 @@ FodyWeavers.xsd
 **/wwwroot/service-worker-assets.js
 SpotyWrap/appsettings.Development.json
 SpotyWrap/appsettings.Development.json
+/SpotyWrap/appsettings.Development.json

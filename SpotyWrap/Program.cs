@@ -1,5 +1,6 @@
 using SpotyWrap.Components;
 using SpotyWrap.Configuration;
+using SpotyWrap.Services;
 
 namespace SpotyWrap
 {
@@ -16,6 +17,9 @@ namespace SpotyWrap
             // Register Spotify configuration
             builder.Services.Configure<SpotifySettings>(
                 builder.Configuration.GetSection("Spotify"));
+
+            // Register AuthStateService as Singleton so all components share the same instance
+            builder.Services.AddSingleton<AuthStateService>();
 
             var app = builder.Build();
 
