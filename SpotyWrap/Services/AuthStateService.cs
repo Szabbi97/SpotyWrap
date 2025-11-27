@@ -45,7 +45,7 @@ namespace SpotyWrap.Services
         {
             var uri = new Uri(_navigationManager.Uri);
             var redirectPath = string.IsNullOrEmpty(path) ? "/" : path;
-            var redirectUri = $"{uri.Scheme}://127.0.0.1:{uri.Port}{redirectPath}";
+            var redirectUri = $"{uri.Scheme}://{uri.Host}{(uri.IsDefaultPort ? "" : $":{uri.Port}")}{redirectPath}";
 
             var codeVerifier = await _jsRuntime.InvokeAsync<string>("generateCodeVerifier");
             var codeChallenge = await _jsRuntime.InvokeAsync<string>("generateCodeChallenge", codeVerifier);
@@ -68,8 +68,7 @@ namespace SpotyWrap.Services
         {
             var uri = new Uri(_navigationManager.Uri);
             var redirectPath = string.IsNullOrEmpty(path) ? "/" : path;
-            var redirectHost = uri.Host == "localhost" ? "127.0.0.1" : uri.Host;
-            var redirectUri = $"{uri.Scheme}://{redirectHost}:{uri.Port}{redirectPath}";
+            var redirectUri = $"{uri.Scheme}://{uri.Host}{(uri.IsDefaultPort ? "" : $":{uri.Port}")}{redirectPath}";
 
             var codeVerifier = await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "code_verifier");
 
