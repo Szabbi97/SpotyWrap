@@ -12,8 +12,10 @@ A Blazor-based web application that connects to your Spotify account and automat
 - 📅 **Monthly Playlist Generation** - Automatically organize your liked songs by the month you added them
 - 🎯 **Current Month Playlist** - Generate a playlist for the current month's liked songs
 - 📚 **All-Time Organization** - Create playlists for all your liked songs, organized by month
+- 🏆 **Monthly Top Playlist** - Combine your top 50 tracks with liked songs from the current month, with popularity-based ranking
 - 💾 **Cookie-based Session** - Maintains your authentication state across sessions
 - 🎨 **Modern UI** - Clean and responsive design with Bootstrap
+- 📊 **Duplicate Detection** - Prevents creating duplicate playlists
 
 ## 🚀 Getting Started
 
@@ -87,11 +89,15 @@ The project includes configurations for:
 
 1. **Authentication**: Users authenticate with Spotify using OAuth 2.0 PKCE flow
 2. **Token Storage**: Access tokens are securely stored in HTTP-only cookies
-3. **Data Fetching**: The app retrieves your liked songs from Spotify API
+3. **Data Fetching**: The app retrieves your liked songs and top tracks from Spotify API
 4. **Playlist Generation**: 
-   - Songs are grouped by the month they were added
-   - Playlists are created with names in `YYYY.M` format (e.g., "2024.1" for January 2024)
-   - Playlists are added to your Spotify account
+   - **This Month**: Songs are grouped by the month they were added
+   - **All Months**: Creates playlists for all months with names in `YYYY.M` format (e.g., "2024.1" for January 2024)
+   - **Monthly Top**: Combines your top 50 tracks (short-term) with liked songs from the current month
+     - Liked songs receive a +30 popularity boost
+     - Final playlist is sorted by adjusted popularity
+     - Limited to top 30 tracks
+   - All playlists are created as private on your Spotify account
 
 ## 🛠️ Tech Stack
 
@@ -106,16 +112,41 @@ The project includes configurations for:
 ```
 SpotyWrap/
 ├── Components/
-│   ├── Pages/          # Blazor pages (Home, Generator, etc.)
-│   └── Classes/        # Data models
+│   ├── Pages/          # Blazor pages (Home, Generator, AllLiked, User)
+│   ├── Classes/        # Data models (Track, Album, Playlist, etc.)
+│   └── Layout/         # Layout components
 ├── Services/
 │   └── AuthStateService.cs  # Authentication management
 ├── Configuration/
 │   └── SpotifySettings.cs   # Configuration classes
 ├── wwwroot/
-│   └── spotify-auth.js      # JavaScript interop for auth
+│   ├── spotify-auth.js      # JavaScript interop for auth
+│   └── infinite-scroll.js   # Infinite scroll functionality
 └── Program.cs               # Application entry point
 ```
+
+## 🎮 Usage
+
+### Generate This Month Playlist
+1. Navigate to the Generator page
+2. Click "Generate" under "This Month"
+3. A playlist named `YYYY.M` will be created with all songs liked in the current month
+
+### Generate All Playlists
+1. Navigate to the Generator page
+2. Click "Generate" under "All Months"
+3. Playlists will be created for each month you have liked songs
+
+### Generate Monthly Top
+1. Navigate to the Generator page
+2. Click "Generate" under "Monthly Top"
+3. A curated playlist combining:
+   - Your top 50 tracks (based on recent listening)
+   - Songs you liked this month (with popularity boost)
+4. The top 30 tracks from this combined list will be added to a playlist named `YYYY.M - Top`
+
+### View All Liked Songs
+- Navigate to the "All Liked" page to browse all your liked songs with infinite scroll
 
 ## 🔒 Security Features
 
