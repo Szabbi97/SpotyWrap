@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Options;
-using Microsoft.JSInterop;
 using SpotyWrap.Components.Classes;
 using SpotyWrap.Configuration;
 using SpotyWrap.Services;
@@ -15,12 +14,10 @@ namespace SpotyWrap.Components.Layout
         [Inject] private AuthStateService AuthStateService { get; set; }
         [Inject] private IOptions<SpotifySettings> SpotifyOptions { get; set; }
         [Inject] private NavigationManager NavigationManager { get; set; }
-        [Inject] private IJSRuntime JSRuntime { get; set; }
 
         private bool isAuthenticated => AuthStateService.IsAuthenticated;
         private UserData? userData => AuthStateService.UserData;
         private bool isProfileDropdownOpen = false;
-        private string codeVerifier;
 
         protected override void OnInitialized()
         {
@@ -56,27 +53,7 @@ namespace SpotyWrap.Components.Layout
 
         public async Task Login()
         {
-            var clientId = SpotifyOptions.Value.ClientId;
-
-            var uri = new Uri(NavigationManager.Uri);
-
-            var host = uri.Host == "localhost" ? "127.0.0.1" : uri.Host;
-            var redirectUri = $"{uri.Scheme}://{host}:{uri.Port}/";
-
-            codeVerifier = await JSRuntime.InvokeAsync<string>("generateCodeVerifier");
-            var codeChallenge = await JSRuntime.InvokeAsync<string>("generateCodeChallenge", codeVerifier);
-
-            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "code_verifier", codeVerifier);
-
-            var scopes = "user-read-private user-read-email user-top-read user-library-read playlist-modify-public playlist-modify-private";
-            var authUrl = $"https://accounts.spotify.com/authorize?" +
-                $"response_type=code&" +
-                $"client_id={clientId}&" +
-                $"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
-                $"scope={Uri.EscapeDataString(scopes)}&" +
-                $"code_challenge_method=S256&" +
-                $"code_challenge={codeChallenge}";
-
+            var authUrl = await AuthStateService.LoginAsync(SpotifyOptions.Value.ClientId);
             NavigationManager.NavigateTo(authUrl, true);
         }
 
@@ -85,6 +62,7 @@ namespace SpotyWrap.Components.Layout
             await AuthStateService.ClearAuthenticationAsync();
             isProfileDropdownOpen = false;
             NavigationManager.NavigateTo("/", true);
+            StateHasChanged();
         }
 
         public void Dispose()
