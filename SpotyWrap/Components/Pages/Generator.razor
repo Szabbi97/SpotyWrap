@@ -22,41 +22,67 @@
     }
     else if (AuthStateService.IsAuthenticated)
     {
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body d-flex flex-column">
-                        <div class="text-center mb-3">
-                            <i class="bi bi-calendar-month text-success" style="font-size: 3rem;"></i>
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm border-0 hover-card">
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="text-center mb-4">
+                            <div class="icon-circle mx-auto mb-3">
+                                <i class="bi bi-calendar-month"></i>
+                            </div>
+                            <h3 class="card-title h4 fw-bold mb-3">This Month</h3>
+                            <p class="card-text text-muted small flex-grow-1">
+                                Creates a playlist containing all songs you've liked during the current month. 
+                                Perfect for capturing your recent music discoveries and favorites.
+                            </p>
                         </div>
-                        <h3 class="card-title text-center mb-3">Generate This Month</h3>
-                        <p class="card-text text-muted flex-grow-1">
-                            Creates a playlist containing all songs you've liked during the current month. 
-                            Perfect for capturing your recent music discoveries and favorites.
-                        </p>
-                        <div class="mt-3">
-                            <button class="btn btn-success btn-lg w-100" @onclick="GenerateThis">
-                                <i class="bi bi-spotify"></i> Generate Current Month
+                        <div class="mt-auto">
+                            <button class="btn btn-success btn-lg w-100 fw-semibold" @onclick="GenerateThis">
+                                <i class="bi bi-spotify me-2"></i>Generate
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-6 col-lg-5">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body d-flex flex-column">
-                        <div class="text-center mb-3">
-                            <i class="bi bi-calendar-range text-success" style="font-size: 3rem;"></i>
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm border-0 hover-card">
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="text-center mb-4">
+                            <div class="icon-circle mx-auto mb-3">
+                                <i class="bi bi-calendar-range"></i>
+                            </div>
+                            <h3 class="card-title h4 fw-bold mb-3">All Months</h3>
+                            <p class="card-text text-muted small flex-grow-1">
+                                Automatically organizes all your liked songs into monthly playlists. 
+                                Each playlist will be named by year and month (e.g., "2024.1") for easy browsing of your music timeline.
+                            </p>
                         </div>
-                        <h3 class="card-title text-center mb-3">Generate All Playlists</h3>
-                        <p class="card-text text-muted flex-grow-1">
-                            Automatically organizes all your liked songs into monthly playlists. 
-                            Each playlist will be named by year and month (e.g., "2024.1") for easy browsing of your music timeline.
-                        </p>
-                        <div class="mt-3">
-                            <button class="btn btn-success btn-lg w-100" @onclick="GenerateAll">
-                                <i class="bi bi-spotify"></i> Generate All Months
+                        <div class="mt-auto">
+                            <button class="btn btn-success btn-lg w-100 fw-semibold" @onclick="GenerateAll">
+                                <i class="bi bi-spotify me-2"></i>Generate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="card h-100 shadow-sm border-0 hover-card">
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="text-center mb-4">
+                            <div class="icon-circle mx-auto mb-3">
+                                <i class="bi bi-trophy-fill"></i>
+                            </div>
+                            <h3 class="card-title h4 fw-bold mb-3">Monthly Top</h3>
+                            <p class="card-text text-muted small flex-grow-1">
+                                Creates a curated playlist combining your top 50 tracks with songs you've liked this month. 
+                                Liked songs receive a popularity boost, ensuring your personal favorites rank higher in the final mix.
+                            </p>
+                        </div>
+                        <div class="mt-auto">
+                            <button class="btn btn-success btn-lg w-100 fw-semibold" @onclick="GenerateMonthlyTop">
+                                <i class="bi bi-spotify me-2"></i>Generate
                             </button>
                         </div>
                     </div>
@@ -64,37 +90,18 @@
             </div>
         </div>
 
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="card-body d-flex flex-column">
-                        <div class="text-center mb-3">
-                            <i class="bi bi-trophy-fill text-success" style="font-size: 3rem;"></i>
-                        </div>
-                        <h3 class="card-title text-center mb-3">Generate Monthly Top</h3>
-                        <p class="card-text text-muted flex-grow-1">
-                            Creates a curated playlist combining your top 50 tracks with songs you've liked this month. 
-                            Liked songs receive a popularity boost, ensuring your personal favorites rank higher in the final mix.
-                        </p>
-                        <div class="mt-3">
-                            <button class="btn btn-success btn-lg w-100" @onclick="GenerateMonthlyTop">
-                                <i class="bi bi-spotify"></i> Generate Monthly Top
-                            </button>
-                        </div>
-                    </div>
+        <div class="alert alert-info border-0 shadow-sm" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-info-circle me-3" style="font-size: 1.5rem;"></i>
+                <div>
+                    <strong>Note:</strong> Playlists will be created as private and won't duplicate if they already exist.
                 </div>
             </div>
-
-        </div>
-
-        <div class="alert alert-info mt-4" role="alert">
-            <i class="bi bi-info-circle"></i> 
-            <strong>Note:</strong> Playlists will be created as private and won't duplicate if they already exist.
         </div>
     }
     else
     {
-        <div class="alert alert-warning shadow-sm" role="alert">
+        <div class="alert alert-warning shadow-sm border-0" role="alert">
             <div class="d-flex align-items-center">
                 <i class="bi bi-exclamation-triangle me-3" style="font-size: 2rem;"></i>
                 <div>
@@ -107,3 +114,47 @@
         </div>
     }
 </div>
+
+<style>
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1ed760 0%, #1aa34a 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(30, 215, 96, 0.3);
+    }
+
+    .icon-circle i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .hover-card:hover .icon-circle {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(30, 215, 96, 0.4);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #1ed760 0%, #1aa34a 100%);
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #1aa34a 0%, #158a3d 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 215, 96, 0.4);
+    }
+</style>

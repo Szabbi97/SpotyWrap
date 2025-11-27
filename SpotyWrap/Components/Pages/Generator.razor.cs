@@ -3,7 +3,6 @@ using SpotyWrap.Components.Classes;
 using SpotyWrap.Services;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace SpotyWrap.Components.Pages
 {
