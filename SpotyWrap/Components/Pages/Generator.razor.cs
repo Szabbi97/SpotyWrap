@@ -3,6 +3,7 @@ using SpotyWrap.Components.Classes;
 using SpotyWrap.Services;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace SpotyWrap.Components.Pages
 {
@@ -13,12 +14,15 @@ namespace SpotyWrap.Components.Pages
         private bool isLoaded = false;
         private LikedSongsResponse? likedSongsData;
         private List<SavedTrack> allTracks = new();
+        private HttpClient client = new HttpClient();
+
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 await AuthStateService.InitializeAsync();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthStateService.AccessToken);
                 isLoaded = true;
                 StateHasChanged();
             }
@@ -33,8 +37,6 @@ namespace SpotyWrap.Components.Pages
             {
                 allTracks = new List<SavedTrack>();
                 likedSongsData = null;
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthStateService.AccessToken);
 
                 var Url = "https://api.spotify.com/v1/me/tracks?limit=50";
 
@@ -110,6 +112,86 @@ namespace SpotyWrap.Components.Pages
             }
         }
 
+        private async Task GenerateMonthlyTop()
+        {
+            await LoadLikedSongs(DateTime.Now);
+            var topTracks = await GetTopTracks("short_term");
+
+            var likedTracksThisMonth = allTracks.Select(t => t.Track).ToList();
+            var likedTrackIds = new HashSet<string>(likedTracksThisMonth.Select(t => t.Id));
+
+            var combinedTracks = new List<Track>();
+            var processedIds = new HashSet<string>();
+
+            foreach (var track in topTracks)
+            {
+                if (!processedIds.Contains(track.Id))
+                {
+                    var trackCopy = new Track
+                    {
+                        Id = track.Id,
+                        Name = track.Name,
+                        Artists = track.Artists,
+                        Album = track.Album,
+                        DurationMs = track.DurationMs,
+                        Explicit = track.Explicit,
+                        PreviewUrl = track.PreviewUrl,
+                        Uri = track.Uri,
+                        ExternalUrls = track.ExternalUrls,
+                        Popularity = track.Popularity + (likedTrackIds.Contains(track.Id) ? 30 : 0)
+                    };
+                    combinedTracks.Add(trackCopy);
+                    processedIds.Add(track.Id);
+                }
+            }
+
+            foreach (var track in likedTracksThisMonth)
+            {
+                if (!processedIds.Contains(track.Id))
+                {
+                    var trackCopy = new Track
+                    {
+                        Id = track.Id,
+                        Name = track.Name,
+                        Artists = track.Artists,
+                        Album = track.Album,
+                        DurationMs = track.DurationMs,
+                        Explicit = track.Explicit,
+                        PreviewUrl = track.PreviewUrl,
+                        Uri = track.Uri,
+                        ExternalUrls = track.ExternalUrls,
+                        Popularity = track.Popularity + 30
+                    };
+                    combinedTracks.Add(trackCopy);
+                    processedIds.Add(track.Id);
+                }
+            }
+
+            var sortedTracks = combinedTracks.OrderByDescending(t => t.Popularity).Take(30).ToList();
+
+            await GeneratePlaylist($"{DateTime.Now.Year}.{DateTime.Now.Month} - Top", sortedTracks);
+        }
+
+        private async Task<List<Track>> GetTopTracks(string v)
+        {
+            var response = await client.GetAsync($"https://api.spotify.com/v1/me/top/tracks?time_range={v}&limit=50");
+            var responseBody = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+                var topTracksData = JsonSerializer.Deserialize<TopTracksResponse>(responseBody, options);
+                if (topTracksData != null)
+                {
+                    return topTracksData.Items;
+                }
+            }
+            return [];
+        }
+
         private async Task GeneratePlaylist(string name, List<Track> tracks)
         {
             if (!AuthStateService.IsAuthenticated)
@@ -117,12 +199,11 @@ namespace SpotyWrap.Components.Pages
 
             try
             {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthStateService.AccessToken);
-                
+
+
                 var userResponse = await client.GetAsync("https://api.spotify.com/v1/me");
                 var userResponseBody = await userResponse.Content.ReadAsStringAsync();
-                
+
                 if (userResponse.IsSuccessStatusCode)
                 {
                     var options = new JsonSerializerOptions
@@ -130,12 +211,12 @@ namespace SpotyWrap.Components.Pages
                         PropertyNameCaseInsensitive = true
                     };
                     var userData = JsonSerializer.Deserialize<UserData>(userResponseBody, options);
-                    
+
                     if (userData != null)
                     {
                         var playlistsResponse = await client.GetAsync($"https://api.spotify.com/v1/users/{userData.Id}/playlists");
                         var playlistsBody = await playlistsResponse.Content.ReadAsStringAsync();
-                        
+
                         if (playlistsResponse.IsSuccessStatusCode)
                         {
                             var playlists = JsonSerializer.Deserialize<PlaylistResponse>(playlistsBody, options);
@@ -158,7 +239,7 @@ namespace SpotyWrap.Components.Pages
                         var playlistContent = new StringContent(JsonSerializer.Serialize(playlistData), System.Text.Encoding.UTF8, "application/json");
                         var playlistResponse = await client.PostAsync($"https://api.spotify.com/v1/users/{userData.Id}/playlists", playlistContent);
                         var playlistResponseBody = await playlistResponse.Content.ReadAsStringAsync();
-                        
+
                         if (playlistResponse.IsSuccessStatusCode)
                         {
                             var playlistInfo = JsonSerializer.Deserialize<Playlist>(playlistResponseBody, options);
