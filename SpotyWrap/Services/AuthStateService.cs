@@ -36,7 +36,6 @@ namespace SpotyWrap.Services
             }
 
             _isInitialized = true;
-            Console.WriteLine($"AuthStateService - Initialized. IsAuthenticated: {IsAuthenticated}");
         }
 
         public async Task SetTokenAsync(string token)
@@ -44,7 +43,6 @@ namespace SpotyWrap.Services
             _accessToken = token;
             await LoadUserDataAsync();
             NotifyStateChanged();
-            Console.WriteLine("AuthStateService - Token set and state notified");
         }
 
         public async Task ClearAuthenticationAsync()
@@ -53,7 +51,6 @@ namespace SpotyWrap.Services
             _accessToken = null;
             _userData = null;
             NotifyStateChanged();
-            Console.WriteLine("AuthStateService - Authentication cleared");
         }
 
         public async Task RefreshTokenAsync()
@@ -66,7 +63,6 @@ namespace SpotyWrap.Services
             }
             
             NotifyStateChanged();
-            Console.WriteLine($"AuthStateService - Token refreshed. IsAuthenticated: {IsAuthenticated}");
         }
 
         private async Task LoadUserDataAsync()
@@ -89,12 +85,10 @@ namespace SpotyWrap.Services
                     };
 
                     _userData = JsonSerializer.Deserialize<UserData>(responseBody, options);
-                    Console.WriteLine($"AuthStateService - User data loaded: {_userData?.DisplayName}");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"AuthStateService - Error loading user data: {ex.Message}");
             }
         }
 

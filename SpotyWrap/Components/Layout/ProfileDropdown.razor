@@ -1,0 +1,52 @@
+@rendermode InteractiveServer
+@using Microsoft.JSInterop
+
+<div class="profile-container" tabindex="-1" @onfocusout="HandleFocusOut">
+    <button class="btn btn-link profile-button" @onclick="ToggleProfileDropdown">
+        <span class="bi bi-person-circle"></span> Profile
+    </button>
+
+    @if (isProfileDropdownOpen)
+    {
+        <div class="profile-dropdown">
+            @if (!isAuthenticated)
+            {
+                <div class="p-3 text-center">
+                    <p class="mb-3">Not logged in</p>
+                    <button class="btn btn-success" @onclick="Login">
+                        <i class="bi bi-spotify"></i> Login with Spotify
+                    </button>
+                </div>
+            }
+            else if (userData != null)
+            {
+                <div class="p-3">
+                    <div class="d-flex align-items-center mb-3">
+                        @if (userData.Images != null && userData.Images.Any())
+                        {
+                            <img src="@userData.Images[0].Url" alt="Profile" class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="bg-secondary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <span class="text-white">@userData.DisplayName?.Substring(0, 1).ToUpper()</span>
+                            </div>
+                        }
+                        <div>
+                            <strong>@userData.DisplayName</strong>
+                            <br />
+                            <small class="text-muted">@userData.Email</small>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(userData.Product))
+                    {
+                        <p class="mb-2"><small><strong>Subscription:</strong> @userData.Product</small></p>
+                    }
+                    <div class="d-grid">
+                        <button class="btn btn-danger btn-sm" @onclick="Logout">Logout</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

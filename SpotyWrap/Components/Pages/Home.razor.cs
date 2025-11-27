@@ -1,22 +1,19 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
-using SpotyWrap.Components.Classes;
 using SpotyWrap.Configuration;
 using SpotyWrap.Services;
 using System.Text.Json;
 
 namespace SpotyWrap.Components.Pages
 {
-    public partial class User
+    public partial class Home
     {
         [Inject] private IOptions<SpotifySettings> SpotifyOptions { get; set; }
         [Inject] private AuthStateService AuthStateService { get; set; }
         [Inject] private NavigationManager NavigationManager { get; set; }
         [Inject] private IJSRuntime JSRuntime { get; set; }
 
-        private UserData? userData => AuthStateService.UserData;
-        private bool isLoaded = false;
         private string codeVerifier;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -31,40 +28,7 @@ namespace SpotyWrap.Components.Pages
                 {
                     await ExchangeCodeForToken(authCode);
                 }
-                else
-                {
-                    await AuthStateService.InitializeAsync();
-                }
-
-                isLoaded = true;
-                StateHasChanged();
             }
-        }
-
-        public async Task Login()
-        {
-            var clientId = SpotifyOptions.Value.ClientId;
-
-            var uri = new Uri(NavigationManager.Uri);
-
-            var host = uri.Host == "localhost" ? "127.0.0.1" : uri.Host;
-            var redirectUri = $"{uri.Scheme}://{host}:{uri.Port}/user";
-
-            codeVerifier = await JSRuntime.InvokeAsync<string>("generateCodeVerifier");
-            var codeChallenge = await JSRuntime.InvokeAsync<string>("generateCodeChallenge", codeVerifier);
-
-            await JSRuntime.InvokeVoidAsync("sessionStorage.setItem", "code_verifier", codeVerifier);
-
-            var scopes = "user-read-private user-read-email user-top-read user-library-read playlist-modify-public playlist-modify-private";
-            var authUrl = $"https://accounts.spotify.com/authorize?" +
-                $"response_type=code&" +
-                $"client_id={clientId}&" +
-                $"redirect_uri={Uri.EscapeDataString(redirectUri)}&" +
-                $"scope={Uri.EscapeDataString(scopes)}&" +
-                $"code_challenge_method=S256&" +
-                $"code_challenge={codeChallenge}";
-
-            NavigationManager.NavigateTo(authUrl, true);
         }
 
         private async Task ExchangeCodeForToken(string code)
@@ -73,7 +37,7 @@ namespace SpotyWrap.Components.Pages
 
             var uri = new Uri(NavigationManager.Uri);
             var host = uri.Host == "localhost" ? "127.0.0.1" : uri.Host;
-            var redirectUri = $"{uri.Scheme}://{host}:{uri.Port}/user";
+            var redirectUri = $"{uri.Scheme}://{host}:{uri.Port}/";
 
             codeVerifier = await JSRuntime.InvokeAsync<string>("sessionStorage.getItem", "code_verifier");
 
@@ -114,8 +78,9 @@ namespace SpotyWrap.Components.Pages
 
                         await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "code_verifier");
 
-                        // Set token in AuthStateService
                         await AuthStateService.SetTokenAsync(tokenResponse.access_token);
+
+                        NavigationManager.NavigateTo("/", true);
                     }
                 }
                 else
@@ -126,12 +91,6 @@ namespace SpotyWrap.Components.Pages
             {
                 return;
             }
-        }
-
-        public async Task Logout()
-        {
-            await AuthStateService.ClearAuthenticationAsync();
-            StateHasChanged();
         }
 
         private class SpotifyTokenResponse

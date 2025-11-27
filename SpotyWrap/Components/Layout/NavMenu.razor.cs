@@ -11,7 +11,6 @@ namespace SpotyWrap.Components.Layout
         
         protected override void OnInitialized()
         {
-            Console.WriteLine("NavMenu - OnInitialized called");
             AuthStateService.OnChange += OnAuthStateChanged;
         }
         
@@ -19,7 +18,6 @@ namespace SpotyWrap.Components.Layout
         {
             if (firstRender)
             {
-                Console.WriteLine("NavMenu - OnAfterRenderAsync (firstRender)");
                 await AuthStateService.InitializeAsync();
                 StateHasChanged();
             }
@@ -27,13 +25,11 @@ namespace SpotyWrap.Components.Layout
 
         private void OnAuthStateChanged()
         {
-            Console.WriteLine($"NavMenu - OnAuthStateChanged called. IsAuthenticated: {isAuthenticated}");
             InvokeAsync(StateHasChanged);
         }
 
         public void Dispose()
         {
-            Console.WriteLine("NavMenu - Disposing");
             AuthStateService.OnChange -= OnAuthStateChanged;
         }
     }

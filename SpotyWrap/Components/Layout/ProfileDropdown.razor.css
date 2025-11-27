@@ -1,0 +1,57 @@
+.profile-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-button {
+    background: none;
+    border: none;
+    color: #1DB954;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .profile-button:hover {
+        color: #1ED760;
+        text-decoration: none;
+    }
+
+    .profile-button:focus {
+        outline: none;
+    }
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    background-color: #282828;
+    border: 2px solid #1DB954;
+    border-radius: 8px;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    color: #ffffff;
+}
+
+    .profile-dropdown .btn {
+        font-size: 0.875rem;
+    }
+
+    .profile-dropdown small {
+        color: #b3b3b3;
+    }
+
+    .profile-dropdown .text-muted {
+        color: #b3b3b3 !important;
+    }
+
+@media (max-width: 640.98px) {
+    .profile-dropdown {
+        right: auto;
+        left: 0;
+        min-width: 280px;
+    }
+}
