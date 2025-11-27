@@ -5,33 +5,33 @@ html, body {
 }
 
 a, .btn-link {
-    color: #1DB954;
+    color: #1ed760;
 }
 
 a:hover, .btn-link:hover {
-    color: #1ED760;
+    color: #3be477;
 }
 
 .btn-primary {
     color: #000;
-    background-color: #1DB954;
-    border-color: #1DB954;
+    background-color: #1ed760;
+    border-color: #1ed760;
     font-weight: bold;
 }
 
 .btn-primary:hover {
-    background-color: #1ED760;
-    border-color: #1ED760;
+    background-color: #3be477;
+    border-color: #3be477;
     transform: scale(1.04);
 }
 
 .btn-primary:active {
-    background-color: #169c46;
-    border-color: #169c46;
+    background-color: #17c653;
+    border-color: #17c653;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem #121212, 0 0 0 0.25rem #1DB954;
+  box-shadow: 0 0 0 0.1rem #121212, 0 0 0 0.25rem #1ed760;
 }
 
 .content {
@@ -39,7 +39,7 @@ a:hover, .btn-link:hover {
 }
 
 h1 {
-    color: #1DB954;
+    color: #1ed760;
 }
 
 h1:focus {
@@ -51,7 +51,7 @@ h2, h3 {
 }
 
 .valid.modified:not([type=checkbox]) {
-    outline: 1px solid #1DB954;
+    outline: 1px solid #1ed760;
 }
 
 .invalid {
@@ -76,32 +76,94 @@ h2, h3 {
     border-color: #535353;
 }
 
-/* Spotify-szer? kártya stílus */
 .card {
-    background-color: #181818;
+    background-color: #1a1a1a;
     border: none;
     border-radius: 8px;
 }
 
 .card:hover {
-    background-color: #282828;
+    background-color: #252525;
     transition: background-color 0.3s ease;
 }
 
-/* Táblázatok Spotify stílusban */
 table {
     color: #ffffff;
 }
 
 table th {
-    color: #b3b3b3;
-    border-bottom: 1px solid #282828;
+    color: #d0d0d0;
+    border-bottom: 1px solid #2a2a2a;
+    font-weight: 600;
 }
 
 table td {
-    border-bottom: 1px solid #282828;
+    border-bottom: 1px solid #2a2a2a;
+    color: #e8e8e8;
+}
+
+table td.text-muted {
+    color: #c0c0c0 !important;
 }
 
 table tr:hover {
-    background-color: #282828;
+    background-color: #252525;
+}
+
+.text-muted {
+    color: #b8b8b8 !important;
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+.alert-warning {
+    background-color: #3d3520;
+    border-color: #f0ad4e;
+    color: #ffd280;
+}
+
+.alert-warning .alert-link {
+    color: #1ed760;
+    font-weight: bold;
+}
+
+.alert-warning .alert-link:hover {
+    color: #3be477;
+}
+
+.alert-info {
+    background-color: #1f3540;
+    border-color: #5bc0de;
+    color: #a8d8ea;
+}
+
+.badge.bg-secondary {
+    background-color: #404040 !important;
+    color: #e0e0e0;
+}
+
+.btn-success {
+    background-color: #1ed760;
+    border-color: #1ed760;
+    color: #000000;
+    font-weight: 600;
+}
+
+.btn-success:hover {
+    background-color: #3be477;
+    border-color: #3be477;
+    color: #000000;
+}
+
+.btn-success:active {
+    background-color: #17c653;
+    border-color: #17c653;
+}
+
+.btn-success:disabled {
+    background-color: #0f7a39;
+    border-color: #0f7a39;
+    color: #808080;
 }

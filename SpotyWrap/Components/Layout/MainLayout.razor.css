@@ -10,13 +10,13 @@ main {
 }
 
 .sidebar {
-    background-color: #000000;
-    border-right: 1px solid #1DB954;
+    background-color: #0a0a0a;
+    border-right: 1px solid #1ed760;
 }
 
 .top-row {
     background-color: #121212;
-    border-bottom: 1px solid #1DB954;
+    border-bottom: 1px solid #1ed760;
     justify-content: flex-end;
     height: 3.5rem;
     display: flex;
@@ -27,13 +27,13 @@ main {
     white-space: nowrap;
     margin-left: 1.5rem;
     text-decoration: none;
-    color: #1DB954;
+    color: #1ed760;
     font-weight: 500;
 }
 
 .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
     text-decoration: none;
-    color: #1ED760;
+    color: #3be477;
 }
 
 .top-row ::deep a:first-child {
@@ -92,7 +92,7 @@ main {
     width: 100%;
     z-index: 1000;
     color: #ffffff;
-    border-top: 2px solid #1DB954;
+    border-top: 2px solid #1ed760;
 }
 
 #blazor-error-ui .dismiss {
@@ -100,9 +100,9 @@ main {
     position: absolute;
     right: 0.75rem;
     top: 0.5rem;
-    color: #1DB954;
+    color: #1ed760;
 }
 
 #blazor-error-ui .dismiss:hover {
-    color: #1ED760;
+    color: #3be477;
 }

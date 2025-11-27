@@ -6,7 +6,7 @@
 .profile-button {
     background: none;
     border: none;
-    color: #1DB954;
+    color: #1ed760;
     font-weight: 500;
     cursor: pointer;
     padding: 0.5rem 1rem;
@@ -15,7 +15,7 @@
 }
 
     .profile-button:hover {
-        color: #1ED760;
+        color: #3be477;
         text-decoration: none;
     }
 
@@ -27,8 +27,8 @@
     position: absolute;
     top: calc(100% + 0.5rem);
     right: 0;
-    background-color: #282828;
-    border: 2px solid #1DB954;
+    background-color: #252525;
+    border: 2px solid #1ed760;
     border-radius: 8px;
     min-width: 300px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -41,11 +41,11 @@
     }
 
     .profile-dropdown small {
-        color: #b3b3b3;
+        color: #c0c0c0;
     }
 
     .profile-dropdown .text-muted {
-        color: #b3b3b3 !important;
+        color: #c0c0c0 !important;
     }
 
 @media (max-width: 640.98px) {
