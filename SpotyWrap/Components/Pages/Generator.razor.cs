@@ -11,6 +11,8 @@ namespace SpotyWrap.Components.Pages
         [Inject] private AuthStateService AuthStateService { get; set; }
 
         private bool isLoaded = false;
+        private bool isGenerating = false;
+        private string generatingMessage = "";
         private LikedSongsResponse? likedSongsData;
         private List<SavedTrack> allTracks = new();
         private HttpClient client = new HttpClient();
@@ -83,92 +85,130 @@ namespace SpotyWrap.Components.Pages
 
         private async Task GenerateThis()
         {
-            await LoadLikedSongs(DateTime.Now);
-            await GeneratePlaylist($"{DateTime.Now.Year}.{DateTime.Now.Month}", [.. allTracks.Select(t => t.Track)]);
+            isGenerating = true;
+            generatingMessage = "Generating playlist for current month...";
+            StateHasChanged();
+
+            try
+            {
+                await LoadLikedSongs(DateTime.Now);
+                await GeneratePlaylist($"{DateTime.Now.Year}.{DateTime.Now.Month}", [.. allTracks.Select(t => t.Track)]);
+            }
+            finally
+            {
+                isGenerating = false;
+                StateHasChanged();
+            }
         }
 
         private async Task GenerateAll()
         {
-            await LoadLikedSongs();
+            isGenerating = true;
+            generatingMessage = "Generating playlists for all months...";
+            StateHasChanged();
 
-            var tracksByMonth = allTracks
-                 .GroupBy(savedTrack => new
-                 {
-                     Year = savedTrack.AddedAt.Year,
-                     Month = savedTrack.AddedAt.Month
-                 })
-                          .Select(group => new
-                          {
-                              Name = $"{group.Key.Year}.{group.Key.Month}",
-                              Tracks = group.Select(st => st.Track).ToList()
-                          })
-                .OrderBy(x => x.Name)
-             .ToList();
-
-            foreach (var pl in tracksByMonth)
+            try
             {
-                await GeneratePlaylist(pl.Name, pl.Tracks);
+                await LoadLikedSongs();
+
+                var tracksByMonth = allTracks
+                     .GroupBy(savedTrack => new
+                     {
+                         Year = savedTrack.AddedAt.Year,
+                         Month = savedTrack.AddedAt.Month
+                     })
+                              .Select(group => new
+                              {
+                                  Name = $"{group.Key.Year}.{group.Key.Month}",
+                                  Tracks = group.Select(st => st.Track).ToList()
+                              })
+                    .OrderBy(x => x.Name)
+                 .ToList();
+
+                foreach (var pl in tracksByMonth)
+                {
+                    generatingMessage = $"Creating playlist: {pl.Name}...";
+                    StateHasChanged();
+                    await GeneratePlaylist(pl.Name, pl.Tracks);
+                }
+            }
+            finally
+            {
+                isGenerating = false;
+                StateHasChanged();
             }
         }
 
         private async Task GenerateMonthlyTop()
         {
-            await LoadLikedSongs(DateTime.Now);
-            var topTracks = await GetTopTracks("short_term");
+            isGenerating = true;
+            generatingMessage = "Generating monthly top playlist...";
+            StateHasChanged();
 
-            var likedTracksThisMonth = allTracks.Select(t => t.Track).ToList();
-            var likedTrackIds = new HashSet<string>(likedTracksThisMonth.Select(t => t.Id));
-
-            var combinedTracks = new List<Track>();
-            var processedIds = new HashSet<string>();
-
-            foreach (var track in topTracks)
+            try
             {
-                if (!processedIds.Contains(track.Id))
-                {
-                    var trackCopy = new Track
-                    {
-                        Id = track.Id,
-                        Name = track.Name,
-                        Artists = track.Artists,
-                        Album = track.Album,
-                        DurationMs = track.DurationMs,
-                        Explicit = track.Explicit,
-                        PreviewUrl = track.PreviewUrl,
-                        Uri = track.Uri,
-                        ExternalUrls = track.ExternalUrls,
-                        Popularity = track.Popularity + (likedTrackIds.Contains(track.Id) ? 30 : 0)
-                    };
-                    combinedTracks.Add(trackCopy);
-                    processedIds.Add(track.Id);
-                }
-            }
+                await LoadLikedSongs(DateTime.Now);
+                var topTracks = await GetTopTracks("short_term");
 
-            foreach (var track in likedTracksThisMonth)
+                var likedTracksThisMonth = allTracks.Select(t => t.Track).ToList();
+                var likedTrackIds = new HashSet<string>(likedTracksThisMonth.Select(t => t.Id));
+
+                var combinedTracks = new List<Track>();
+                var processedIds = new HashSet<string>();
+
+                foreach (var track in topTracks)
+                {
+                    if (!processedIds.Contains(track.Id))
+                    {
+                        var trackCopy = new Track
+                        {
+                            Id = track.Id,
+                            Name = track.Name,
+                            Artists = track.Artists,
+                            Album = track.Album,
+                            DurationMs = track.DurationMs,
+                            Explicit = track.Explicit,
+                            PreviewUrl = track.PreviewUrl,
+                            Uri = track.Uri,
+                            ExternalUrls = track.ExternalUrls,
+                            Popularity = track.Popularity + (likedTrackIds.Contains(track.Id) ? 30 : 0)
+                        };
+                        combinedTracks.Add(trackCopy);
+                        processedIds.Add(track.Id);
+                    }
+                }
+
+                foreach (var track in likedTracksThisMonth)
+                {
+                    if (!processedIds.Contains(track.Id))
+                    {
+                        var trackCopy = new Track
+                        {
+                            Id = track.Id,
+                            Name = track.Name,
+                            Artists = track.Artists,
+                            Album = track.Album,
+                            DurationMs = track.DurationMs,
+                            Explicit = track.Explicit,
+                            PreviewUrl = track.PreviewUrl,
+                            Uri = track.Uri,
+                            ExternalUrls = track.ExternalUrls,
+                            Popularity = track.Popularity + 30
+                        };
+                        combinedTracks.Add(trackCopy);
+                        processedIds.Add(track.Id);
+                    }
+                }
+
+                var sortedTracks = combinedTracks.OrderByDescending(t => t.Popularity).Take(30).ToList();
+
+                await GeneratePlaylist($"{DateTime.Now.Year}.{DateTime.Now.Month} - Top", sortedTracks);
+            }
+            finally
             {
-                if (!processedIds.Contains(track.Id))
-                {
-                    var trackCopy = new Track
-                    {
-                        Id = track.Id,
-                        Name = track.Name,
-                        Artists = track.Artists,
-                        Album = track.Album,
-                        DurationMs = track.DurationMs,
-                        Explicit = track.Explicit,
-                        PreviewUrl = track.PreviewUrl,
-                        Uri = track.Uri,
-                        ExternalUrls = track.ExternalUrls,
-                        Popularity = track.Popularity + 30
-                    };
-                    combinedTracks.Add(trackCopy);
-                    processedIds.Add(track.Id);
-                }
+                isGenerating = false;
+                StateHasChanged();
             }
-
-            var sortedTracks = combinedTracks.OrderByDescending(t => t.Popularity).Take(30).ToList();
-
-            await GeneratePlaylist($"{DateTime.Now.Year}.{DateTime.Now.Month} - Top", sortedTracks);
         }
 
         private async Task<List<Track>> GetTopTracks(string v)
@@ -198,8 +238,6 @@ namespace SpotyWrap.Components.Pages
 
             try
             {
-
-
                 var userResponse = await client.GetAsync("https://api.spotify.com/v1/me");
                 var userResponseBody = await userResponse.Content.ReadAsStringAsync();
 
@@ -213,21 +251,36 @@ namespace SpotyWrap.Components.Pages
 
                     if (userData != null)
                     {
-                        var playlistsResponse = await client.GetAsync($"https://api.spotify.com/v1/users/{userData.Id}/playlists");
-                        var playlistsBody = await playlistsResponse.Content.ReadAsStringAsync();
+                        var playlistUrl = $"https://api.spotify.com/v1/users/{userData.Id}/playlists?limit=50";
+                        var existingPlaylist = default(Playlist);
 
-                        if (playlistsResponse.IsSuccessStatusCode)
+                        do
                         {
-                            var playlists = JsonSerializer.Deserialize<PlaylistResponse>(playlistsBody, options);
-                            if (playlists != null)
+                            var playlistsResponse = await client.GetAsync(playlistUrl);
+                            var playlistsBody = await playlistsResponse.Content.ReadAsStringAsync();
+
+                            if (playlistsResponse.IsSuccessStatusCode)
                             {
-                                var existingPlaylist = playlists.Items.FirstOrDefault(p => p.Name == name);
-                                if (existingPlaylist != null)
+                                var playlists = JsonSerializer.Deserialize<PlaylistResponse>(playlistsBody, options);
+                                if (playlists != null)
                                 {
-                                    return;
+                                    existingPlaylist = playlists.Items.FirstOrDefault(p => p.Name == name);
+                                    if (existingPlaylist != null)
+                                    {
+                                        return;
+                                    }
+                                    playlistUrl = playlists.Next;
+                                }
+                                else
+                                {
+                                    break;
                                 }
                             }
-                        }
+                            else
+                            {
+                                break;
+                            }
+                        } while (playlistUrl != null);
 
                         var playlistData = new
                         {

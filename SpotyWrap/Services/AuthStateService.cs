@@ -52,7 +52,7 @@ namespace SpotyWrap.Services
 
             await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "code_verifier", codeVerifier);
 
-            var scopes = "user-read-private user-read-email user-top-read user-library-read playlist-modify-public playlist-modify-private";
+            var scopes = "user-read-private user-read-email user-top-read user-library-read playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative";
             var authUrl = $"https://accounts.spotify.com/authorize?" +
                 $"response_type=code&" +
                 $"client_id={clientId}&" +
