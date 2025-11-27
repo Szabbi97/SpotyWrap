@@ -1,13 +1,17 @@
 ﻿using SpotyWrap.Components.Classes;
+using SpotyWrap.Services;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.JSInterop;
+using Microsoft.AspNetCore.Components;
 
 namespace SpotyWrap.Components.Pages
 {
     public partial class AllLiked : IAsyncDisposable
     {
-        private string accessToken;
+        [Inject] private AuthStateService AuthStateService { get; set; }
+        [Inject] private IJSRuntime JSRuntime { get; set; }
+
         private LikedSongsResponse likedSongsData;
         private List<SavedTrack> allTracks = new();
         private bool isLoaded = false;
@@ -20,12 +24,11 @@ namespace SpotyWrap.Components.Pages
         {
             if (firstRender)
             {
-                accessToken = await JSRuntime.InvokeAsync<string>("getSpotifyAccessToken");
+                await AuthStateService.InitializeAsync();
 
-                if (!string.IsNullOrEmpty(accessToken))
+                if (AuthStateService.IsAuthenticated)
                 {
                     await LoadLikedSongs();
-
                     await SetupInfiniteScroll();
                 }
 
@@ -55,10 +58,13 @@ namespace SpotyWrap.Components.Pages
 
         private async Task LoadLikedSongs()
         {
+            if (!AuthStateService.IsAuthenticated)
+                return;
+
             try
             {
                 var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthStateService.AccessToken);
 
                 var response = await client.GetAsync("https://api.spotify.com/v1/me/tracks?limit=50");
                 var responseBody = await response.Content.ReadAsStringAsync();
@@ -87,7 +93,7 @@ namespace SpotyWrap.Components.Pages
 
         public async Task LoadMoreSongs()
         {
-            if (isLoadingMore || string.IsNullOrEmpty(nextUrl))
+            if (isLoadingMore || string.IsNullOrEmpty(nextUrl) || !AuthStateService.IsAuthenticated)
             {
                 return;
             }
@@ -98,7 +104,7 @@ namespace SpotyWrap.Components.Pages
             try
             {
                 var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AuthStateService.AccessToken);
 
                 var response = await client.GetAsync(nextUrl);
                 var responseBody = await response.Content.ReadAsStringAsync();

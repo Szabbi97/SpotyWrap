@@ -9,7 +9,7 @@
 {
     <p>Loading...</p>
 }
-else if (!string.IsNullOrEmpty(accessToken))
+else if (AuthStateService.IsAuthenticated)
 {
     <div class="text-center">
         <button class="btn btn-success btn-lg" @onclick="GenerateThis">
@@ -20,5 +20,12 @@ else if (!string.IsNullOrEmpty(accessToken))
         <button class="btn btn-success btn-lg" @onclick="GenerateAll">
             <i class="bi bi-spotify"></i> Generate all
      </button>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> 
+        Please <a href="/user" class="alert-link">login with Spotify</a> to use the generator.
     </div>
 }

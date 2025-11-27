@@ -10,24 +10,19 @@ namespace SpotyWrap
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            // Register Spotify configuration
             builder.Services.Configure<SpotifySettings>(
                 builder.Configuration.GetSection("Spotify"));
 
-            // Register AuthStateService as Singleton so all components share the same instance
-            builder.Services.AddSingleton<AuthStateService>();
+            builder.Services.AddScoped<AuthStateService>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 

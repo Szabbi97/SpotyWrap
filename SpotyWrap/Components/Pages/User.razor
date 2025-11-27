@@ -1,7 +1,5 @@
 ﻿@page "/user"
 @rendermode InteractiveServer
-@inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
 
 <h3>User Profile</h3>
 
@@ -9,7 +7,7 @@
 {
     <p>Loading...</p>
 }
-else if (string.IsNullOrEmpty(accessToken))
+else if (!AuthStateService.IsAuthenticated)
 {
     <div class="text-center">
         <button class="btn btn-success btn-lg" @onclick="Login">

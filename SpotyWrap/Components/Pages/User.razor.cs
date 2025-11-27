@@ -1,25 +1,23 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Options;
 using Microsoft.JSInterop;
 using SpotyWrap.Components.Classes;
 using SpotyWrap.Configuration;
 using SpotyWrap.Services;
-using System.Net.Http.Headers;
 using System.Text.Json;
 
 namespace SpotyWrap.Components.Pages
 {
     public partial class User
     {
-        private string accessToken;
-        private UserData userData;
+        [Inject] private IOptions<SpotifySettings> SpotifyOptions { get; set; }
+        [Inject] private AuthStateService AuthStateService { get; set; }
+        [Inject] private NavigationManager NavigationManager { get; set; }
+        [Inject] private IJSRuntime JSRuntime { get; set; }
+
+        private UserData? userData => AuthStateService.UserData;
         private bool isLoaded = false;
         private string codeVerifier;
-
-        [Microsoft.AspNetCore.Components.Inject]
-        private IOptions<SpotifySettings> SpotifyOptions { get; set; }
-
-        [Microsoft.AspNetCore.Components.Inject]
-        private AuthStateService AuthStateService { get; set; }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -35,22 +33,12 @@ namespace SpotyWrap.Components.Pages
                 }
                 else
                 {
-                    accessToken = await JSRuntime.InvokeAsync<string>("getSpotifyAccessToken");
-                }
-
-                if (!string.IsNullOrEmpty(accessToken))
-                {
-                    await LoadUserDataAsync();
+                    await AuthStateService.InitializeAsync();
                 }
 
                 isLoaded = true;
                 StateHasChanged();
             }
-        }
-
-        public void SetAccessToken(string token)
-        {
-            accessToken = token;
         }
 
         public async Task Login()
@@ -124,16 +112,12 @@ namespace SpotyWrap.Components.Pages
                         await JSRuntime.InvokeVoidAsync("eval",
                      $"document.cookie = 'spotify_access_token={tokenResponse.access_token}; max-age={expiresIn}; path=/; SameSite=Lax'");
 
-                        accessToken = tokenResponse.access_token;
-                        Console.WriteLine($"User - Token received and set in cookie: {accessToken.Substring(0, 20)}...");
+                        Console.WriteLine($"User - Token received and set in cookie: {tokenResponse.access_token.Substring(0, 20)}...");
 
                         await JSRuntime.InvokeVoidAsync("sessionStorage.removeItem", "code_verifier");
 
-                        // Notify NavMenu and other components about auth state change
-                        Console.WriteLine("User - Notifying AuthStateService");
-                        AuthStateService.NotifyStateChanged();
-                        
-                        await LoadUserDataAsync();
+                        // Set token in AuthStateService
+                        await AuthStateService.SetTokenAsync(tokenResponse.access_token);
                     }
                 }
                 else
@@ -150,39 +134,8 @@ namespace SpotyWrap.Components.Pages
 
         public async Task Logout()
         {
-            await JSRuntime.InvokeVoidAsync("clearSpotifyAccessToken");
-            accessToken = null;
-            userData = null;
-            
-            // Notify NavMenu and other components about auth state change
-            AuthStateService.NotifyStateChanged();
-            
+            await AuthStateService.ClearAuthenticationAsync();
             StateHasChanged();
-        }
-
-        private async Task LoadUserDataAsync()
-        {
-            try
-            {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-                var response = await client.GetAsync("https://api.spotify.com/v1/me");
-                var responseBody = await response.Content.ReadAsStringAsync();
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
-
-                    userData = JsonSerializer.Deserialize<UserData>(responseBody, options);
-                }
-            }
-            catch (Exception)
-            {
-                return;
-            }
         }
 
         private class SpotifyTokenResponse
